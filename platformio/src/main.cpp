@@ -323,6 +323,9 @@ void setup()
   String dateStr;
   getDateStr(dateStr, &timeInfo);
 
+  int pwrPin = 25;
+  pinMode(pwrPin, OUTPUT);
+  digitalWrite(pwrPin, HIGH);
   // RENDER FULL REFRESH
   initDisplay();
   do
@@ -338,6 +341,7 @@ void setup()
     drawStatusBar(statusStr, refreshTimeStr, wifiRSSI, batteryVoltage);
   } while (display.nextPage());
   display.powerOff();
+  digitalWrite(pwrPin, LOW);
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);

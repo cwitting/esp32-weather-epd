@@ -22,8 +22,8 @@
 // ADC pin used to measure battery voltage
 const uint8_t PIN_BAT_ADC  = A2; // A0 for micro-usb firebeetle
 // Pins for Waveshare e-paper Driver Board
-const uint8_t PIN_EPD_BUSY = 13; // 5 for micro-usb firebeetle
-const uint8_t PIN_EPD_CS   =  2;
+const uint8_t PIN_EPD_BUSY = 27; // 5 for micro-usb firebeetle
+const uint8_t PIN_EPD_CS   = 26;
 const uint8_t PIN_EPD_RST  = 21;
 const uint8_t PIN_EPD_DC   = 22;
 const uint8_t PIN_EPD_SCK  = 18;
@@ -65,12 +65,12 @@ const String OWM_ONECALL_VERSION = "3.0";
 const String LAT = "40.7128";
 const String LON = "-74.0060";
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING = "New York";
+const String CITY_STRING = "Copenhagen";
 
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const char *TIMEZONE = "EST5EDT,M3.2.0,M11.1.0";
+const char *TIMEZONE = "CET-1CEST,M3.5.0,M10.5.0/3";
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -101,7 +101,7 @@ const unsigned long NTP_TIMEOUT = 20000; // ms
 // Aligned to the nearest minute boundary and must evenly divide 60.
 // For example, if set to 30 (minutes) the display will update at 00 or 30
 // minutes past the hour. (range: [2-60])
-const long SLEEP_DURATION = 30;
+const long SLEEP_DURATION = 30; // Minutes
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: [0-23])
 const int BED_TIME  = 00; // Last update at 00:00 (midnight) until WAKE_TIME.
