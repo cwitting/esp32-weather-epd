@@ -464,7 +464,7 @@ void drawCurrentConditions(const owm_current_t &current,
     dataStr = String(static_cast<int>(round(celsius_to_kelvin(inTemp))));
 #endif
 #ifdef UNITS_TEMP_CELSIUS
-    dataStr = String(static_cast<int>(round(inTemp)));
+    dataStr = String(inTemp, 1);
 #endif
 #ifdef UNITS_TEMP_FAHRENHEIT
     dataStr = String(static_cast<int>(round(celsius_to_fahrenheit(inTemp))));
