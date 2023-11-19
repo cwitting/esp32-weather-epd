@@ -223,6 +223,7 @@ extern const uint8_t PIN_EPD_DC;
 extern const uint8_t PIN_EPD_SCK;
 extern const uint8_t PIN_EPD_MISO;
 extern const uint8_t PIN_EPD_MOSI;
+extern const uint8_t PIN_BME_PWR;
 extern const uint8_t PIN_BME_SDA;
 extern const uint8_t PIN_BME_SCL;
 extern const uint8_t BME_ADDRESS;

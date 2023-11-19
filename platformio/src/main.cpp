@@ -16,12 +16,13 @@
  */
 
 #include <Arduino.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_BMP280.h>
 #include <Adafruit_Sensor.h>
 #include <Preferences.h>
 #include <time.h>
 #include <WiFi.h>
 #include <Wire.h>
+#include "driver/adc.h"
 
 #include "api_response.h"
 #include "client_utils.h"
@@ -286,17 +287,20 @@ void setup()
   killWiFi(); // WiFi no longer needed
 
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
+  pinMode(PIN_BME_PWR, OUTPUT);
+  digitalWrite(PIN_BME_PWR, HIGH);
   float inTemp     = NAN;
   float inHumidity = NAN;
   Serial.print("Reading from BME280... ");
   TwoWire I2C_bme = TwoWire(0);
-  Adafruit_BME280 bme;
+  Adafruit_BMP280 bme(&I2C_bme);
 
   I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000); // 100kHz
-  if(bme.begin(BME_ADDRESS, &I2C_bme))
+  if(bme.begin(BME_ADDRESS))
   {
     inTemp     = bme.readTemperature(); // Celsius
-    inHumidity = bme.readHumidity();    // %
+    // inHumidity = bme.readHumidity();    // %
+    inHumidity = 0;
 
     // check if BME readings are valid
     // note: readings are checked again before drawing to screen. If a reading
@@ -317,6 +321,8 @@ void setup()
     statusStr = "BME not found"; // check wiring
     Serial.println(statusStr);
   }
+
+  digitalWrite(PIN_BME_PWR, LOW);
 
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);

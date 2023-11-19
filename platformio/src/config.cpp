@@ -30,6 +30,8 @@ const uint8_t PIN_EPD_SCK  = 18;
 const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
 const uint8_t PIN_EPD_MOSI = 23;
 // I2C Pins used for BME280
+
+const uint8_t PIN_BME_PWR = 4;   // to power it
 const uint8_t PIN_BME_SDA = 17;   // 27 for micro-usb firebeetle
 const uint8_t PIN_BME_SCL = 16;   // 26 for micro-usb firebeetle
 const uint8_t BME_ADDRESS = 0x76; // if sensor does not work, try 0x77
