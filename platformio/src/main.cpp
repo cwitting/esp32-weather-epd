@@ -114,6 +114,8 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   Serial.println("Awake for "
                  + String((millis() - startTime) / 1000.0, 3) + "s");
   Serial.println("Deep-sleep for " + String(sleepDuration) + "s");
+  btStop();
+  adc_power_off();
   esp_deep_sleep_start();
 } // end beginDeepSleep
 
@@ -121,6 +123,8 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
  */
 void setup()
 {
+  btStop();
+  adc_power_off();
   unsigned long startTime = millis();
   Serial.begin(115200);
 
@@ -185,6 +189,8 @@ void setup()
       Serial.println("Deep-sleep for "
                     + String(LOW_BATTERY_SLEEP_INTERVAL) + "min");
     }
+    btStop();
+    adc_power_off();
     esp_deep_sleep_start();
   }
   // battery is no longer low, reset variable in non-volatile storage
@@ -348,6 +354,10 @@ void setup()
   } while (display.nextPage());
   display.powerOff();
   digitalWrite(pwrPin, LOW);
+  pinMode(PIN_EPD_CS, OUTPUT);
+  digitalWrite(PIN_EPD_CS, LOW);
+  gpio_hold_en(GPIO_NUM_2); // Keep builtin LED low
+  gpio_deep_sleep_hold_en();
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);
