@@ -22,6 +22,8 @@
 #include <time.h>
 #include <WiFi.h>
 #include <Wire.h>
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
 #include "driver/adc.h"
 
 #include "api_response.h"
@@ -118,6 +120,41 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   adc_power_off();
   esp_deep_sleep_start();
 } // end beginDeepSleep
+
+
+static bool mqtt_message_received = false;
+static float inHumidity = 0.0f;
+
+void mqtt_callback(char* topic, byte* message, unsigned int length) {
+  mqtt_message_received = true;
+  Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
+  String jsonMsg;
+  
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)message[i]);
+    jsonMsg += (char)message[i];
+  }
+  Serial.println();
+
+  DynamicJsonDocument doc(32 * 1024);
+
+  DeserializationError error = deserializeJson(doc, jsonMsg);
+
+  inHumidity = doc["humidity"];
+
+  Serial.print("Humidity: ");
+  Serial.println(inHumidity);
+
+  // // Feel free to add more if statements to control more GPIOs with MQTT
+
+  // // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
+  // // Changes the output state according to the message
+  // if (String(topic) == "esp32/output") {
+  //   Serial.print("Changing output to ");
+  // }
+}
 
 /* Program entry point.
  */
@@ -262,6 +299,20 @@ void setup()
   WiFiClientSecure client;
   client.setCACert(cert_Sectigo_RSA_Domain_Validation_Secure_Server_CA);
 #endif
+
+  // Listen on MQTT
+  WiFiClient mqtt_web_client;
+  Serial.println("Setting up mqtt");
+  PubSubClient mqtt_client(mqtt_web_client);
+  const char* mqtt_server = "192.168.0.111";
+  mqtt_client.setServer(mqtt_server, 1883);
+  mqtt_client.setCallback(mqtt_callback);
+  if(!mqtt_client.connect("Esp32Client", "user", "password")) {
+    Serial.println("Not able to connect");
+  }
+  mqtt_client.subscribe("zigbee2mqtt/Living Room Thermo");
+  //
+
   int rxStatus = getOWMonecall(client, owm_onecall);
   if (rxStatus != HTTP_CODE_OK)
   {
@@ -290,13 +341,24 @@ void setup()
     display.powerOff();
     beginDeepSleep(startTime, &timeInfo);
   }
+
+  for (size_t i = 0; i < 20; i++)
+  {
+    mqtt_client.loop();
+    if (mqtt_message_received) {
+      break;
+    }
+    Serial.println("No message yet...");
+    delay(500);
+  }
+  Serial.println("Mqtt Done");
+
   killWiFi(); // WiFi no longer needed
 
   // GET INDOOR TEMPERATURE AND HUMIDITY, start BME280...
   pinMode(PIN_BME_PWR, OUTPUT);
   digitalWrite(PIN_BME_PWR, HIGH);
   float inTemp     = NAN;
-  float inHumidity = NAN;
   Serial.print("Reading from BME280... ");
   TwoWire I2C_bme = TwoWire(0);
   Adafruit_BMP280 bme(&I2C_bme);
@@ -306,13 +368,12 @@ void setup()
   {
     inTemp     = bme.readTemperature(); // Celsius
     // inHumidity = bme.readHumidity();    // %
-    inHumidity = 0;
 
     // check if BME readings are valid
     // note: readings are checked again before drawing to screen. If a reading
     //       is not a number (NAN) then an error occurred, a dash '-' will be
     //       displayed.
-    if (std::isnan(inTemp) || std::isnan(inHumidity))
+    if (std::isnan(inTemp))
     {
       statusStr = "BME read failed";
       Serial.println(statusStr);

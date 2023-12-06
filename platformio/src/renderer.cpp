@@ -582,7 +582,7 @@ void drawCurrentConditions(const owm_current_t &current,
   display.setFont(&FONT_12pt8b);
   if (!std::isnan(inHumidity))
   {
-    dataStr = String(static_cast<int>(round(inHumidity)));
+    dataStr = String(inHumidity, 1);
   }
   else
   {
